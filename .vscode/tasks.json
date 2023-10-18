@@ -1,0 +1,51 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+
+        // Build tasks for makefile:
+        {
+            "label": "Makefile",
+            "type": "shell",
+            "group": "build",
+            "command": "make",
+            "problemMatcher": [
+                "$gcc"
+            ],
+        },
+        {
+            "label": "Makefile clean",
+            "type": "shell",
+            "group": "build",
+            "command": "make",
+            "args": [
+                "clean"
+            ],
+        },
+//         {
+//             "type": "cppbuild",
+//             "label": "C/C++: Build *.cpp",
+//             "command": "/usr/bin/g++",
+//             "args": [
+// //                "-std=c++17",
+// //                "-stdlib=libc++",
+//                 "-fdiagnostics-color=always",
+//                 "-g",
+//                 "${workspaceFolder}/src/*.cpp",
+//                 "-o",
+//                 "${workspaceFolder}/${workspaceFolderBasename}.out"
+//             ],
+//             "options": {
+//                 "cwd": "${workspaceFolder}"
+//             },
+//             "problemMatcher": [
+//                 "$gcc"
+//             ],
+//             "group": {
+//                 "kind": "build",
+//                 "isDefault": true
+//             },
+//             "detail": "Задача создана отладчиком."
+//         }
+
+    ],
+}

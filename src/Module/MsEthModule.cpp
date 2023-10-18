@@ -1,0 +1,217 @@
+#include "MsEthModule.h"
+/// @brief 
+/// @param eth_module fake for backward compatibility 
+/// @param eth_priority fake for backward compatibility     
+/// @param eth_buffer_addr fake for backward compatibility memory will be allocated by malloc
+/// @param eth_buffer_len 
+/// @param mac_address
+MsEthModule::MsEthModule(modules eth_module, uint8_t eth_priority, uint32_t eth_buffer_addr, uint32_t eth_buffer_len, uint64_t mac_address)
+    : self_mac_addr(mac_address),
+      type_length_pairs_counter(0),
+      rxBufferLength(eth_buffer_len)
+{
+    rxBufferAddr = new uint8_t[eth_buffer_len];
+    int *rawsocket = new int;
+    if (!rxBufferAddr||!rawsocket)
+    {
+        std::cout << "New has returned Null pointer!" << std::endl;
+        exit(-1);
+    }
+    open_raw_socket_at_interface(INTERFACE_NAME, rawsocket);
+    received_buffer_position = reinterpret_cast<uint32_t>(rxBufferAddr); 
+    // int open_raw_socket_at_interface(const char *__restrict interface_name, int *rawsocket);
+    // TODO open socket here!!!
+
+}
+
+void MsEthModule::DefaultConfigEthernetRegisters()  // TODO are comments it?
+{
+    eth_registers_t registers;
+    // не указанные явно поля и регистры заполнены нулевыми значениями в конструкторе структуры
+    registers.MS_Eth_Cfg.param.phy_rst = 1;
+    registers.MS_Eth_Cfg.param.pad_enable = 1;
+    registers.MS_Eth_SA = self_mac_addr;
+    registers.MS_Eth_IPG = 0;                         // технологическая пауза между кадрами - 1 дискрет IPG (0,96 мкс)
+    registers.MS_Eth_IdleCycle = 1;   // цикл посылки Idle, в тактах СнК, д.б. не менее IPG
+    registers.MS_Eth_IdleFault = 2/* 1.5 */; // интервал, по истечению ктр выставится сбой по отсутствию Idle
+
+    // Write(ADDR_MS_Eth_Cfg, reinterpret_cast<uint64_t>(&registers), sizeof(registers)); NOTE у нас нет МУО 
+}
+
+/*!
+ * \brief Настройка регистра MS_Eth_LT (для утановки поля L/T в пакете Ethernet).
+ *
+ * Используемые методы:
+ * \sa UnblockWritingRegisters();
+ * \sa IBaseModule::WriteWithoutWaiting(uint32_t module_addr, uint32_t user_addr, uint32_t len);
+ *
+ * \param uint16_t MS_Mode - значение регистра MS_Mode.
+ *
+ * \return void.
+ */
+void MsEthModule::SetLengthTypeFields(uint8_t mode_field, uint16_t length_type_field) // NOTE ++
+{
+    length_type_t MS_Eth_LT;
+
+    MS_Eth_LT.full_word = 0;
+
+    MS_Eth_LT.param.mode = mode_field;
+    MS_Eth_LT.param.value = length_type_field;
+
+    // WriteWithoutWaiting(ADDR_MS_Eth_LT, reinterpret_cast<uint64_t>(&MS_Eth_LT), sizeof(MS_Eth_LT));
+}
+
+/// @brief Установить соостветствие длинна-тип, для ускорения поиска по буферу.  
+/// @param packet_type соответсвующие поля ethernet
+/// @param packet_length  длина кадра
+void MsEthModule::SetPacketLengthCorrespondingType(uint16_t packet_type, uint16_t packet_length)
+{
+    if (++type_length_pairs_counter > MAX_ETHER_FRAME_TYPE)
+    {
+        std::cout << "too many frame type was been given (many than " << MAX_ETHER_FRAME_TYPE << ")"
+                  << std::endl
+                  << "Increase MAX_ETHER_FRAME_TYPE define in MsEthModule.h" << std::endl;
+        exit(-1);
+    }
+    type_length_pairs[type_length_pairs_counter].type = packet_type;
+    type_length_pairs[type_length_pairs_counter].length = packet_length;
+
+    
+}
+
+/// @brief метод возвращает длинну кадра
+/// @param packet_type типа кадра 
+/// @return длинна кадра 
+uint16_t MsEthModule::GetPacketLengthCorrespondingType(uint16_t packet_type)
+{
+    for (uint32_t i = 0; i < type_length_pairs_counter; i++)
+    {
+        if (type_length_pairs[i].type == packet_type)
+            return type_length_pairs[i].length;
+    }
+
+    return 0;
+}
+
+/*!
+ * \brief Поиск в буфере данных полученных из внешнего интерфейса.
+ *
+ * Выполняется поиск данных по служебной информации пакета (mac-адрес отправителя) в
+ * буфере для приема данных из внешнего интерфейса.
+ * В случае изменения буфера приема данных из МС, адрес последней обработанной информации переставляется
+ * на начало нового буфера.
+ *
+ * Используемые методы:
+ * \sa SystemSoftware::CompareMemory(uint64_t first_addr, uint64_t second_addr, uint32_t length_in_byte);
+ * \sa MsEthModule::GetPacketLengthCorrespondingType(uint16_t packet_type)
+ *
+ * \return uint32_t - адрес начала полученного пакета, начиная с служ. информации, либо "0", если информация в буфере не найдена.
+ */
+uint32_t MsEthModule::GetReceivedDataAddress(uint64_t mac_addr_extern, uint32_t current_buffer_position) 
+{
+    const uint32_t service_inf_length = 16; // служебная информация пакета Ethernet (заголовок + контр.сумма)
+
+    uint32_t rxBufferEndAddr = reinterpret_cast<uint32_t>(rxBufferAddr) + rxBufferLength;
+
+    // если буфер был изменен, то начинать поиск с начала буфера
+    if (current_buffer_position < reinterpret_cast<uint32_t>(rxBufferAddr) 
+            || current_buffer_position > rxBufferEndAddr 
+            || received_buffer_position< reinterpret_cast<uint32_t>(rxBufferAddr)
+            || received_buffer_position > rxBufferEndAddr )
+    {
+        current_buffer_position = reinterpret_cast<uint32_t>(rxBufferAddr); //итератор выданных из модуля, 
+                                                                            //по запросу, кадров
+        received_buffer_position = reinterpret_cast<uint32_t>(rxBufferAddr); //итератор полученных в модуль кадров
+        // TODO что делать в случае, когда буфер изменили, а пакет новый не принят, и тогда
+        //  в ms_notice.DataAddress будет старое значение, которое еще может быть в пределах нового буфера (если буфер смещен не очень сильно)
+    }
+
+// uint32_t ether_receive_and_save(int *rawsocket_in, uint8_t *buffer_addr, uint32_t buffer_len, uint32_t current_buffer_offset)
+    received_buffer_position = ether_receive_and_save(rawsocket, rxBufferAddr, rxBufferLength, received_buffer_position); // собираем все что пришло на интерфейс с последнего вызова и перекладываем в буффер
+
+    if (current_buffer_position > received_buffer_position) // буфер был исчерпан, запись началась с начала буфера
+    {
+        while (current_buffer_position < rxBufferEndAddr) // проходим буфер до конца
+        {
+            uint16_t *len_type_field = reinterpret_cast<uint16_t *>(current_buffer_position + 12);
+
+            if (len_type_field[0] <= 1500)
+                current_buffer_position += len_type_field[0] + service_inf_length;
+            else
+            {
+                uint16_t packet_length = GetPacketLengthCorrespondingType(len_type_field[0]);
+
+                if (packet_length != 0)
+                    current_buffer_position += packet_length + service_inf_length;
+                else // если неизвестный тип пакета и неизвестна его длина, перебираем буфер
+                {
+                    uint32_t packet_beginning = current_buffer_position + service_inf_length - 2;
+                    while (packet_beginning <= received_buffer_position)
+                    {
+                        if (CompareMemory(packet_beginning, reinterpret_cast<uint64_t>(&self_mac_addr), 6))
+                        {
+                            current_buffer_position = packet_beginning;
+                            break;
+                        }
+                        packet_beginning++;
+                    }
+                }
+            }
+
+            if (!CompareMemory(current_buffer_position, reinterpret_cast<uint64_t>(&self_mac_addr), 6)) // если в конце буфера есть не занятое данными место
+                break;
+
+            if (CompareMemory((current_buffer_position + 6), reinterpret_cast<uint64_t>(&mac_addr_extern), 6))
+                return current_buffer_position;
+        }
+
+        current_buffer_position = reinterpret_cast<uint32_t>(rxBufferAddr); // переносим указатель на начало буфера
+    }
+
+    while (current_buffer_position < received_buffer_position)
+    {
+        uint16_t *len_type_field = reinterpret_cast<uint16_t *>(current_buffer_position) + 12;
+
+        if (len_type_field[0] <= 1500)
+            current_buffer_position += len_type_field[0] + service_inf_length;
+        else
+        {
+            uint16_t packet_length = GetPacketLengthCorrespondingType(len_type_field[0]);
+
+            if (packet_length != 0)
+                current_buffer_position += packet_length + service_inf_length;
+            else // если неизвестный тип пакета и неизвестна его длина, перебираем буфер
+            {
+                uint32_t packet_beginning = current_buffer_position + service_inf_length - 2;
+                while (packet_beginning <= received_buffer_position)
+                {
+                    if (CompareMemory(packet_beginning, reinterpret_cast<uint64_t>(&self_mac_addr), 6))
+                    {
+                        current_buffer_position = packet_beginning;
+                        break;
+                    }
+                    packet_beginning++;
+                }
+            }
+        }
+
+        if (CompareMemory((current_buffer_position + 6), reinterpret_cast<uint64_t>(&mac_addr_extern), 6))
+            return current_buffer_position;
+    }
+
+    return 0;
+}
+
+bool MsEthModule::CompareMemory(uint64_t first_addr, uint64_t second_addr, uint32_t length_in_byte)
+{
+    uint8_t *mem_1 = reinterpret_cast<uint8_t *>(first_addr);
+    uint8_t *mem_2 = reinterpret_cast<uint8_t *>(second_addr);
+
+    for (uint32_t i = 0; i < length_in_byte; i++)
+    {
+        if (mem_1[i] != mem_2[i])
+            return false;
+    }
+
+    return true;
+}
