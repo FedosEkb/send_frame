@@ -14,6 +14,7 @@ uint32_t net_sim::add_devise_to_net(devise_type type_to_add, iBase* devise_ptr, 
             net_devise_table.devise_ptr[iter] = devise_ptr;
             net_devise_table.get_data[iter] = get_data_callback;
             dev_on_net = iter;
+            break;
         }
     }
     return ++dev_on_net; 
@@ -22,7 +23,8 @@ uint32_t net_sim::add_devise_to_net(devise_type type_to_add, iBase* devise_ptr, 
 void net_sim::print_all_devise_value(void)
 {
     devise_type dev_type = devise_type::NOPE;
-    void * ptr_to_dev_data;
+    uint8_t buffer_for_data[256];  // TODO память ВЫДЕЛЕНА КОРЯВО!! просто для теста!! не использовать так как есть 
+    void * ptr_to_dev_data = buffer_for_data;
     for (int iter = 0; iter < MAX_DEV_NUMB; iter++)
     {
         if (net_devise_table.dev_arr[iter] == devise_type::NOPE ) break;
