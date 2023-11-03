@@ -2,7 +2,7 @@
 
 void dev_son_t::get_some_data(void *ptr_on_data, devise_type *dev_type)
 {
-    ptr_on_data = &data;
+    *(reinterpret_cast<dev_two*>(ptr_on_data)) = data;
     *dev_type = devise_type::VOLTMETER;
 }
 

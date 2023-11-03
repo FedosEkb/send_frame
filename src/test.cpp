@@ -35,8 +35,11 @@ int main(int argc, char *argv[])
 #ifdef FUNCTION_MEMBER_POINTER_TEST_DEVISE
 net_sim& devise_net = net_sim::get();
 
-dev_son ampermetr(3.335);
-dev_son_t voltemter(15.23,27.34);
+dev_son ampermetr1(3.335);
+dev_son_t voltemter1(15.23,27.34);
+dev_son_t voltemter2(132.23,232.34);
+dev_son_t voltemter3(1.23,2.34);
+dev_son ampermetr2(323.35);
 
 devise_net.print_all_devise_value();
 

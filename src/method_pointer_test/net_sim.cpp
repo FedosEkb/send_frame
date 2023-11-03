@@ -48,7 +48,7 @@ void net_sim::print_devise_value(const void *ptr_on_data,const devise_type dev_t
         const dev_one *ptr_on_ampermeter_data = reinterpret_cast<const dev_one *>(ptr_on_data);
         std::cout << "Devise type: ampermeter\n";
         std::cout << "Course value: " << ptr_on_ampermeter_data->current_curse << std::endl;
-        std::cout << "Fine value: " << ptr_on_ampermeter_data->current_curse << std::endl;
+        std::cout << "Fine value: " << ptr_on_ampermeter_data->current_fine << std::endl;
         std::cout << std::endl;
     }
     break;

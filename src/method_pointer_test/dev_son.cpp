@@ -2,7 +2,7 @@
 
 void dev_son::get_some_data(void *ptr_on_data, devise_type *dev_type)
 {
-    ptr_on_data = &data;
+    *(reinterpret_cast<dev_one*>(ptr_on_data)) = data;
     *dev_type = devise_type::AMPERMETER;
 }
 
