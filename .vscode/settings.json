@@ -56,6 +56,30 @@
         "ostream": "cpp",
         "stdexcept": "cpp",
         "streambuf": "cpp",
-        "typeinfo": "cpp"
-    }
+        "typeinfo": "cpp",
+        "fstream": "cpp",
+        "buffer": "cpp",
+        "internet": "cpp",
+        "io_context": "cpp",
+        "socket": "cpp",
+        "ratio": "cpp",
+        "sstream": "cpp",
+        "stop_token": "cpp",
+        "executor": "cpp",
+        "netfwd": "cpp",
+        "timer": "cpp",
+        "chrono": "cpp",
+        "condition_variable": "cpp",
+        "cstring": "cpp",
+        "ctime": "cpp",
+        "forward_list": "cpp",
+        "list": "cpp",
+        "future": "cpp",
+        "mutex": "cpp",
+        "semaphore": "cpp",
+        "thread": "cpp"
+    },
+    "cSpell.words": [
+        "ampermeter"
+    ]
 }

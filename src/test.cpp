@@ -1,10 +1,49 @@
 /* cSpell:disable */
 #include "test.h"
+#define FUNCTION_MEMBER_POINTER_TEST
 
+#ifdef FUNCTION_MEMBER_POINTER_TEST
+class A {
+  public:
+  int Afunc() { return 2; };
+  virtual int over_func() { return 10; };
+};
+class B {
+  public:
+  int Bfunc() { return 3; };
+};
+// класс С использует одиночное наследование
+class C:  public A {
+  public:
+  int Cfunc() { return 4; };
+  int over_func() { return 12; };
+};
+// класс D использует множественное наследование
+class D:  public A, public B {
+  public:
+  int Dfunc() { return 5; };
+  int over_func() { return 13; };
+};
+#endif /* FUNCTION_MEMBER_POINTER_TEST */
 
 int main(int argc, char *argv[])
 {
+#ifdef FUNCTION_MEMBER_POINTER_TEST
+typedef int (A::*test_pnt)();
+A objA;
+B objB;
+C objC;
+D objD;
+A *ptr_to_A = &objA;
+B *ptr_to_B = &objB;
+C *ptr_to_C = &objC;
+D *ptr_to_D = &objD;
+test_pnt test_func = &A::over_func ;
 
+std::cout << sizeof(test_pnt) << " " << (ptr_to_A->*test_func)() << std::endl;
+
+#endif /* FUNCTION_MEMBER_POINTER_TEST */
+#ifdef MESAGE_QUEUE_TEST
      mqueue_warp test_queue;
      ssize_t dev_number;
      while (true)
@@ -44,7 +83,7 @@ int main(int argc, char *argv[])
           }
           std::cout << "---------------------------------" << std::endl;
      }
-
+#endif /* MESAGE_QUEUE_TEST */
 // dev_number = test_queue.get_devise_error_reset()
 
 #ifdef BINARY_OUT_TEST
@@ -59,6 +98,6 @@ int main(int argc, char *argv[])
      out.write((char *)&y, sizeof(y));           // Записываем в файл значение "y"
      out.close();                                // Сохраняем файл
      /*КОНЕЦ РАБОТЫ С БИНАРНЫМ ФАЙЛОМ*/
-#endif
+#endif /* BINARY_OUT_TEST */
      return (0);
 }
