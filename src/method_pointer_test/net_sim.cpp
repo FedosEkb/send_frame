@@ -42,13 +42,16 @@ void net_sim::print_devise_value(const void *ptr_on_data,const devise_type dev_t
     switch (dev_type)
     {
     case devise_type::AMPERMETER:
+    {
         const dev_one *ptr_on_ampermeter_data = reinterpret_cast<const dev_one *>(ptr_on_data);
         std::cout << "Devise type: ampermeter\n";
         std::cout << "Course value: " << ptr_on_ampermeter_data->current_curse << std::endl;
         std::cout << "Fine value: " << ptr_on_ampermeter_data->current_curse << std::endl;
         std::cout << std::endl;
-        break;
+    }
+    break;
     case devise_type::VOLTMETER:
+    {
         const dev_two *ptr_on_voltmeter_data = reinterpret_cast<const dev_two *>(ptr_on_data);
         std::cout << "Devise type: voltmeter\n";
         std::cout << "Course voltage_1: " << ptr_on_voltmeter_data->voltage1_curse << std::endl;
@@ -56,17 +59,17 @@ void net_sim::print_devise_value(const void *ptr_on_data,const devise_type dev_t
         std::cout << "Course voltage_2: " << ptr_on_voltmeter_data->voltage2_curse << std::endl;
         std::cout << "Fine voltage_2: " << ptr_on_voltmeter_data->voltage2_fine << std::endl;
         std::cout << std::endl;
-        break;
+    }
+    break;
     default:
         assert(false && "Попытка распечатать незарегестрированный прибор!");
         break;
     }
-
 }
 
-net_sim::net_sim(/* args */)
-{
-}
+// net_sim::net_sim(/* args */)
+// {
+// }
 
 net_sim::~net_sim()
 {

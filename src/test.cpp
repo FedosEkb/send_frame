@@ -1,46 +1,60 @@
 /* cSpell:disable */
 #include "test.h"
-#define FUNCTION_MEMBER_POINTER_TEST
+// #define FUNCTION_MEMBER_POINTER_TEST
 
 #ifdef FUNCTION_MEMBER_POINTER_TEST
-class A {
-  public:
-  int Afunc() { return 2; };
-  virtual int over_func() { return 10; };
+class A
+{
+public:
+     int Afunc() { return 2; };
+     virtual int over_func() { return 10; };
 };
-class B {
-  public:
-  int Bfunc() { return 3; };
+class B
+{
+public:
+     int Bfunc() { return 3; };
 };
 // класс С использует одиночное наследование
-class C:  public A {
-  public:
-  int Cfunc() { return 4; };
-  int over_func() { return 12; };
+class C : public A
+{
+public:
+     int Cfunc() { return 4; };
+     int over_func() { return 12; };
 };
 // класс D использует множественное наследование
-class D:  public A, public B {
-  public:
-  int Dfunc() { return 5; };
-  int over_func() { return 13; };
+class D : public A, public B
+{
+public:
+     int Dfunc() { return 5; };
+     int over_func() { return 13; };
 };
 #endif /* FUNCTION_MEMBER_POINTER_TEST */
 
 int main(int argc, char *argv[])
 {
-#ifdef FUNCTION_MEMBER_POINTER_TEST
-typedef int (A::*test_pnt)();
-A objA;
-B objB;
-C objC;
-D objD;
-A *ptr_to_A = &objA;
-B *ptr_to_B = &objB;
-C *ptr_to_C = &objC;
-D *ptr_to_D = &objD;
-test_pnt test_func = &A::over_func ;
+#ifdef FUNCTION_MEMBER_POINTER_TEST_DEVISE
+net_sim& devise_net = net_sim::get();
 
-std::cout << sizeof(test_pnt) << " " << (ptr_to_A->*test_func)() << std::endl;
+dev_son ampermetr(3.335);
+dev_son_t voltemter(15.23,27.34);
+
+devise_net.print_all_devise_value();
+
+#endif /* FUNCTION_MEMBER_POINTER_TEST_DEVISE */
+
+#ifdef FUNCTION_MEMBER_POINTER_TEST
+     typedef int (A::*test_pnt)();
+     A objA;
+     B objB;
+     C objC;
+     D objD;
+     A *ptr_to_A = &objA;
+     B *ptr_to_B = &objB;
+     C *ptr_to_C = &objC;
+     D *ptr_to_D = &objD;
+     test_pnt test_func = &A::over_func;
+
+     std::cout << sizeof(test_pnt) << " " << (ptr_to_A->*test_func)() << std::endl;
 
 #endif /* FUNCTION_MEMBER_POINTER_TEST */
 #ifdef MESAGE_QUEUE_TEST
@@ -84,7 +98,7 @@ std::cout << sizeof(test_pnt) << " " << (ptr_to_A->*test_func)() << std::endl;
           std::cout << "---------------------------------" << std::endl;
      }
 #endif /* MESAGE_QUEUE_TEST */
-// dev_number = test_queue.get_devise_error_reset()
+     // dev_number = test_queue.get_devise_error_reset()
 
 #ifdef BINARY_OUT_TEST
      const char *FName = "/home/rsu-ti/test"; // Путь к файлу

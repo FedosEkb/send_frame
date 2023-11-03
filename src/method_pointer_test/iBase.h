@@ -6,7 +6,7 @@
 
 class iBase
 {
-private:
+protected:
     net_sim& net;
 public:
     virtual void get_some_data(void *ptr_on_data, devise_type *dev_type) = 0;

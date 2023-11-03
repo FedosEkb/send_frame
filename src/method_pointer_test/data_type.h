@@ -1,6 +1,10 @@
+#ifndef DATA_TYPE
+#define DATA_TYPE
+
 #include <stdint.h>
 
-enum class devise_type{
+enum class devise_type
+{
     NOPE = 0,
     AMPERMETER = 1,
     VOLTMETER = 2
@@ -19,3 +23,5 @@ struct dev_two
     uint32_t voltage2_curse;
     double voltage2_fine;
 };
+
+#endif /* DATA_TYPE */
