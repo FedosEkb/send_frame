@@ -40,12 +40,20 @@ CC := $(TOOLS)gcc
 
 # $(warning A top-level warning $(TOOLS)g++ $(TOOLS)gcc)   			
 
+# -D_CLIBCXX_DEBUG -D_CLIBCXX_DEBUG_PEDANTIC 
+#			-fsanitize=address -fsanitize=undefined -fno-sanitize-recover \
+			-fstack-protector \
+ 
 CXXFLAGS =  -O0 -fmessage-length=0 \
             -fsigned-char -ffunction-sections -fdata-sections -g3 \
             -std=gnu++11 -fabi-version=0 \
             -fno-exceptions -fno-rtti -fno-use-cxa-atexit \
 			-fno-threadsafe-statics -fno-unwind-tables \
+			-Wall -Wextra -pedantic -Wshadow -Wformat=2 -Wfloat-equal -Wconversion \
+			-Wlogical-op -Wshift-overflow=2 -Wduplicated-cond -Wcast-qual \
+			-Wcast-align -D_FORTIFY_SOURCE=2 \
             -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -c -o "$@" "$<"
+			
 # NOTE разобратся с парамертами:
 # -fno-use-cxa-atexit - как я понимаю это описавает алгоритмы вызова для деструкторов статических объектов!!
 # зачем его менять не ясно!

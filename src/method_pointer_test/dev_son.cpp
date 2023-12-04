@@ -13,7 +13,6 @@ dev_son::dev_son(double current)
     net.add_devise_to_net(devise_type::AMPERMETER,this,&iBase::get_some_data);
 }
 
-
 dev_son::~dev_son()
 {
 }

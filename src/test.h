@@ -1,7 +1,7 @@
 #ifndef TEST_PROJ
 #define TEST_PROJ
 
-#define FUNCTION_MEMBER_POINTER_TEST_DEVISE
+
 
 #include <signal.h>
 #include <stdio.h>
@@ -23,13 +23,20 @@
 
 #include "mqueue_warp.h"
 
+#include "assert.h"
+
+#define FUNCTION_MEMBER_POINTER_TEST_DEVISE
+// #define SOME_STRUCT_TEST
+
 #ifdef FUNCTION_MEMBER_POINTER_TEST_DEVISE
+
 
 #include "method_pointer_test/net_sim.h"
 #include "method_pointer_test/dev_son.h"
 #include "method_pointer_test/dev_son_t.h"
 
 #endif /* FUNCTION_MEMBER_POINTER_TEST_DEVISE */
+
 
 // #define ETH_TEST       0
 

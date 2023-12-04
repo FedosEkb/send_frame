@@ -30,18 +30,104 @@ public:
 };
 #endif /* FUNCTION_MEMBER_POINTER_TEST */
 
+
+#ifdef SOME_STRUCT_TEST
+
+enum class OPERATON_STATES_t : uint8_t // operation states
+{
+    VALID = 0b11110000,  //!< Положительный.
+    INVALID = 0b00001111 //!< Отрицательный.
+};
+
+typedef struct __attribute__((packed)) selftest_packet // TODO вернутся к выравниванию!
+{
+    uint8_t Uk_0;                       //!< 8-разрядное слово с дискретом преобра-зования 0,353 А. Для ПрКИР поле зарезервиравано.
+    uint8_t Uk_100;                     //!< 8-разрядное слово с дискретом преобра-зования 0,353 А. Для ПрКИР поле зарезервиравано.
+    OPERATON_STATES_t operation_states; //!< Обобщенный результат функционирова-ния (положительный / отрицательный).
+    uint16_t CRCF;                      //!< Фактическая контрольная сумма.
+    uint16_t CRCROM;                    //!< Контрольная сумма ПЗУ.
+    uint8_t Myaddr;                     //!< Значение адреса прибора, проводившего самопроверку.
+    selftest_packet() : Uk_0(0), Uk_100(0), operation_states(OPERATON_STATES_t::INVALID), CRCF(0),
+                        CRCROM(0), Myaddr(0) {}
+}selftest_packet;
+
+int some_func(selftest_packet & some_data){
+}
+
+struct selftest_frame
+{
+     struct ethhdr frame_header; //!< MAC + Type/Len field
+     uint8_t ready;              //!< Статус готовности к работе. 0 - ПП не готов к работе. 1 - ПП готов к работе.
+     selftest_packet diag;       //!< Диагностика от прибора
+     uint8_t diag_padding[80 - sizeof(selftest_packet)];
+     selftest_frame() : frame_header{.h_dest{12,0,0,0,0,0},.h_source{12,0,0,0,0,0},.h_proto = 40000}
+     {
+
+     }
+} __attribute__((packet));
+
+#endif /* SOME_STRUCT_TEST */
+
+
+void some_test(uint16_t t){
+     std::cout << t << std::endl;
+}
+
 int main(int argc, char *argv[])
 {
+some_test((int16_t)-1);
+
+#ifdef SOME_STRUCT_TEST
+     // assert(false && "Нарушен порядок внесения приборов на сеть.");
+     std::cout << "------size_of_struct------" << std::endl;
+     std::cout << sizeof(selftest_packet) << std::endl;
+     std::cout << sizeof(struct ethhdr) << std::endl;
+     std::cout << sizeof(struct selftest_frame) << std::endl;
+     std::cout << "------self_packet_test------" << std::endl;
+     struct selftest_frame test_packed;
+     std::cout << "Uk_0: " << uint32_t(test_packed.diag.Uk_0) << std::endl; 
+     std::cout << "Uk_100: " << uint32_t(test_packed.diag.Uk_100) << std::endl; 
+     std::cout << "operation_states: " << uint32_t(test_packed.diag.operation_states) << std::endl; 
+     std::cout << "CRCF: " << test_packed.diag.CRCF << std::endl; 
+     std::cout << "CRCROM: " << test_packed.diag.CRCROM << std::endl; 
+     std::cout << "Myaddr: " << uint32_t(test_packed.diag.Myaddr) << std::endl; 
+     std::cout << "src_MAC: ";
+     for (size_t i = 0; i < 6; i++)
+     {
+          std::cout <<uint32_t(test_packed.frame_header.h_source[i]) << ":";
+     }
+     std::cout << std::endl;
+     std::cout << "dest_MAC: ";
+     for (size_t i = 0; i < 6; i++)
+     {
+          std::cout <<uint32_t(test_packed.frame_header.h_dest[i]) << ":";
+     }
+     std::cout << std::endl; 
+     std::cout << "type: " << uint32_t(test_packed.frame_header.h_proto) << std::endl; 
+     std::cout << "cast test" << std::endl;
+
+     struct selftest_frame new_struct;
+     void *void_ptr = &new_struct;
+
+     struct selftest_frame new_struct_after_cast = *reinterpret_cast<struct selftest_frame*>(void_ptr);
+     
+     for (size_t i = 0; i < 6; i++)
+     {
+          std::cout <<uint32_t(new_struct_after_cast.frame_header.h_source[i]) << ":";
+     }
+
+#endif /* SOME_STRUCT_TEST */
+
 #ifdef FUNCTION_MEMBER_POINTER_TEST_DEVISE
-net_sim& devise_net = net_sim::get();
+     net_sim &devise_net = net_sim::get();
 
-dev_son ampermetr1(3.335);
-dev_son_t voltemter1(15.23,27.34);
-dev_son_t voltemter2(132.23,232.34);
-dev_son_t voltemter3(1.23,2.34);
-dev_son ampermetr2(323.35);
+     dev_son ampermetr1(3.335);
+     dev_son_t voltemter1(15.23, 27.34);
+     dev_son_t voltemter2(132.23, 232.34);
+     dev_son_t voltemter3(1.23, 2.34);
+     dev_son ampermetr2(323.35);
 
-devise_net.print_all_devise_value();
+     devise_net.print_all_devise_value();
 
 #endif /* FUNCTION_MEMBER_POINTER_TEST_DEVISE */
 
@@ -103,6 +189,7 @@ devise_net.print_all_devise_value();
 #endif /* MESAGE_QUEUE_TEST */
      // dev_number = test_queue.get_devise_error_reset()
 
+//#define BINARY_OUT_TEST
 #ifdef BINARY_OUT_TEST
      const char *FName = "/home/rsu-ti/test"; // Путь к файлу
 
@@ -116,5 +203,28 @@ devise_net.print_all_devise_value();
      out.close();                                // Сохраняем файл
      /*КОНЕЦ РАБОТЫ С БИНАРНЫМ ФАЙЛОМ*/
 #endif /* BINARY_OUT_TEST */
-     return (0);
+//#define ARREY_OF_PTR_ON_VOID 
+#ifdef ARREY_OF_PTR_ON_VOID
+     #define LEN 32
+     
+     int somedate[LEN];
+     for (size_t i = 0; i < LEN; i++)
+     {
+          somedate[i] = i*i;
+     }
+
+     void *ptr_to_data[LEN];
+     
+     for (size_t i = 0; i < LEN; i++)
+     {
+          ptr_to_data[i] = somedate + i;
+     }
+
+     for (size_t i = 0; i < LEN; i++)
+     {
+          std::cout << *reinterpret_cast<int*>(ptr_to_data[i]) << " | ";
+     }
+#endif /* ARREY_OF_PTR_ON_VOID */
+
+     return 0;
 }
