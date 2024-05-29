@@ -12,8 +12,8 @@ int main()
     int rawsocket;
     open_raw_socket_at_interface(INTERFACE_NAME,&rawsocket);
     ether_send(&rawsocket);
-    sleep (1);
-    ether_receive(&rawsocket);
+    // sleep (1);
+    // ether_receive(&rawsocket);
     close_raw_socket_at_interface(&rawsocket);
 #endif /* ETH_TEST */
 

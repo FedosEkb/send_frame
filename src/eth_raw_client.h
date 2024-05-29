@@ -38,22 +38,22 @@
 
 /* --------------------- Define section--------------------- */
 
-#define SEND_TO_LOOPBACK // NOTE comment it for translate to NIC // TODO create turn  off/on this macros from script 
+// #define SEND_TO_LOOPBACK // NOTE comment it for translate to NIC // TODO create turn  off/on this macros from script 
 
-// #define PRINT_DEBUG_INFO		// TODO create turn  off/on this macros from script 
+#define PRINT_DEBUG_INFO		// TODO create turn  off/on this macros from script 
 #define PRINT_SENDING_HEADERS	// TODO create turn  off/on this macros from script 
 
 #ifdef SEND_TO_LOOPBACK
 #define INTERFACE_NAME "lo"
 #else
 // NOTE send broadcast header
-#define INTERFACE_NAME "enp6s0"
-#define DESTMAC0 0xFF
-#define DESTMAC1 0xFF
-#define DESTMAC2 0xFF
-#define DESTMAC3 0xFF
-#define DESTMAC4 0xFF
-#define DESTMAC5 0xFF
+#define INTERFACE_NAME "eth0"
+#define DESTMAC0 0x00
+#define DESTMAC1 0x00
+#define DESTMAC2 0x00
+#define DESTMAC3 0x00
+#define DESTMAC4 0x00
+#define DESTMAC5 0x12
 
 
 #endif /* SEND_TO_LOOPBACK */

@@ -89,7 +89,7 @@ link: $(OBJECTS)
 	
 	@echo ""
 	@echo "Post-build:"
-#	@sudo setcap cap_net_raw,cap_net_admin=eip $(BUILD_DIR)/$(TARGET).out
+	@sudo setcap cap_net_raw,cap_net_admin=eip $(BUILD_DIR)/$(TARGET).out
 # $(TOOLS)riscv64-unknown-elf-objdump -S "$(BUILD_DIR)/$(TARGET).elf" > "$(TARGET).txt"
 # $(TOOLS)riscv64-unknown-elf-objcopy -O verilog "$(BUILD_DIR)/$(TARGET).elf" "$(BUILD_DIR)/$(TARGET).hex"
 # @echo ""

@@ -5,11 +5,7 @@
 #define DATA_SIZE 0x065 
 
 
-
-
-
 // private  static declaration 
-
 
 /// @brief send some data from raw ethernet
 /// @param  
@@ -18,15 +14,12 @@ int ether_send(int *rawsocket_in)
 {
 	// set up the socket, which is simply an integer
 	int rawsocket = *rawsocket_in;
-
 	
 	//create a packet
 
-	
-
 #ifdef PRINT_DEBUG_INFO
-	printf("\n IP address from " INTERFACE_NAME ":\t%s\n", // NOTE we have nothing in first 2 bait!!
-		   inet_ntoa(((struct sockaddr_in *)&(ifreq_ip.ifr_addr))->sin_addr));
+	// printf("\n IP address from " INTERFACE_NAME ":\t%s\n", // NOTE we have nothing in first 2 bait!!
+	// 	   inet_ntoa(((struct sockaddr_in *)&(ifreq_ip.ifr_addr))->sin_addr));
 #endif /* PRINT_DEBUG_INFO */
 
 	const size_t sum_of_all_headers = sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof(struct udphdr);

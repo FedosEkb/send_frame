@@ -11,6 +11,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-// #define ETH_TEST       0
+ #define ETH_TEST       0
 
 #endif /* TEST_PROJ */
