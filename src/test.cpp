@@ -18,9 +18,9 @@ int main()
 
     
 
-    for (size_t i = 0; i < 64; i++)
+    for (size_t i = 0; (i < 64) && (48 + i*48) < 1500 ; i++)
     {
-        ethenet.send_ethernet_frame(0x120000000000, buff, 48 + i*8, 0xFF00 + i);
+        ethenet.send_ethernet_frame(0x120000000000, buff, 48 + i*48, 0xF000 + 48 + i*48);
     }
 
     // std::cout << "\nReceive frame:\n";
