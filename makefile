@@ -63,6 +63,7 @@ ASFLAGS =  -O0 -fmessage-length=0 \
             -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -c -o "$@" "$<"
 
 LDFLAGS :=  -O0 -fmessage-length=0 \
+
             -fsigned-char -ffunction-sections -fdata-sections -g3 \
             -Xlinker --gc-sections \
             -Wl,-Map,"$(BUILD_DIR)/$(TARGET).map" 

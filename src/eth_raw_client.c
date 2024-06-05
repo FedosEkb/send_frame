@@ -2,7 +2,7 @@
 
 #include "eth_raw_client.h"
 
-#define DATA_SIZE 0x065 
+#define DATA_SIZE (0x600 - 14 - 4 - 100) 
 
 
 // private  static declaration 
@@ -22,7 +22,7 @@ int ether_send(int *rawsocket_in)
 	// 	   inet_ntoa(((struct sockaddr_in *)&(ifreq_ip.ifr_addr))->sin_addr));
 #endif /* PRINT_DEBUG_INFO */
 
-	const size_t sum_of_all_headers = sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof(struct udphdr);
+	const size_t sum_of_all_headers = sizeof(struct ethhdr)/*  + sizeof(struct iphdr) + sizeof(struct udphdr) */;
 	const size_t data_size = DATA_SIZE + sum_of_all_headers;
 
 	unsigned char * send_buff = malloc(data_size);
@@ -36,20 +36,20 @@ int ether_send(int *rawsocket_in)
 
 	/* constructing a IP header  */
 
-	struct iphdr *iph = (struct iphdr *)(send_buff + sizeof(struct ethhdr)); 
+	// struct iphdr *iph = (struct iphdr *)(send_buff + sizeof(struct ethhdr)); 
 
-	constructing_ip_header(iph, rawsocket_in);
+	// constructing_ip_header(iph, rawsocket_in);
 
 	/* constructing a UDP header  */
 
-	struct udphdr *uh = (struct udphdr *)(send_buff + sizeof(struct iphdr) + sizeof(struct ethhdr));
+	// struct udphdr *uh = (struct udphdr *)(send_buff + sizeof(struct iphdr) + sizeof(struct ethhdr));
 
-	constructing_udp_header(uh);
+	// constructing_udp_header(uh);
 
 	/* filling len of UDP and IP  */
 
-	uh->len = htons((data_size - sizeof(struct iphdr) - sizeof(struct ethhdr))); // UDP length field
-	iph->tot_len = htons(data_size - sizeof(struct ethhdr));					 // IP length field
+	// uh->len = htons((data_size - sizeof(struct iphdr) - sizeof(struct ethhdr))); // UDP length field
+	// iph->tot_len = htons(data_size - sizeof(struct ethhdr));					 // IP length field
 
 	/* constructing a data load of frame  */
 
@@ -60,7 +60,7 @@ int ether_send(int *rawsocket_in)
 
 	/* calculating CRC for IP header */
 
-	iph->check = checksum((unsigned short*)(send_buff + sizeof(struct ethhdr)), (sizeof(struct iphdr)/2));
+	// iph->check = checksum((unsigned short*)(send_buff + sizeof(struct ethhdr)), (sizeof(struct iphdr)/2));
 
 #ifdef PRINT_DEBUG_INFO
 	for (int i = 0; i < data_size; i++)
@@ -71,13 +71,13 @@ int ether_send(int *rawsocket_in)
 		case 0:
 			printf("\nEthernet header:\n");
 			break;
-		case sizeof(struct ethhdr):
-			printf("\nIP header:\n");
-			break;
-		case sizeof(struct ethhdr) + sizeof(struct iphdr):
-			printf("\nUDP header:\n");
-			break;
-		case sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof(struct udphdr):
+		// case sizeof(struct ethhdr):
+		// 	printf("\nIP header:\n");
+		// 	break;
+		// case sizeof(struct ethhdr) + sizeof(struct iphdr):
+		// 	printf("\nUDP header:\n");
+		// 	break;
+		case sizeof(struct ethhdr) /* + sizeof(struct iphdr) + sizeof(struct udphdr) */:
 			printf("\nPacket body:\n");
 			break;
 		default:
@@ -91,8 +91,8 @@ int ether_send(int *rawsocket_in)
 	/* print all header here */
 #ifdef PRINT_SENDING_HEADERS
 	print_ethernet_header(ethernet_header);
-	print_ip_header(iph);
-	print_udp_header(uh);
+	// print_ip_header(iph);
+	// print_udp_header(uh);
 #endif /* PRINT_DEBUG_INFO */
 	//
 
@@ -335,7 +335,9 @@ int constructing_ethernet_header(struct ethhdr *ethernet_header, int *rawsocket)
 	ethernet_header->h_dest[5] = DESTMAC5;
 #endif /* SEND_TO_LOOPBACK */
 	memcpy(ethernet_header->h_source, (void *)(ifreq_mac.ifr_ifru.ifru_hwaddr.sa_data), ETH_ALEN);
-	ethernet_header->h_proto = htons(ETH_P_IP); // means next header will be IP header
+
+	// #define DATA_SIZE (0x600 - 14 - 4 - 100) 
+	ethernet_header->h_proto = htons(DATA_SIZE); // amount of data in body
     return 0;
 }
 

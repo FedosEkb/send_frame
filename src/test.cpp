@@ -11,7 +11,14 @@ int main()
 #ifdef ETH_TEST
     int rawsocket;
     open_raw_socket_at_interface(INTERFACE_NAME,&rawsocket);
+    // for (;;)
+    // {
+    //     ether_send(&rawsocket);
+    //     sleep(1);
+    // }
+
     ether_send(&rawsocket);
+
     // sleep (1);
     // ether_receive(&rawsocket);
     close_raw_socket_at_interface(&rawsocket);
