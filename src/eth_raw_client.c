@@ -103,7 +103,7 @@ int ether_send(int *rawsocket_in)
 		perror("Error writing bytes to the socket! \n");
 		exit(-1);
 	}
-
+	free(send_buff);
 	// close_raw_socket_at_interface(&rawsocket);
 
 	return 0;

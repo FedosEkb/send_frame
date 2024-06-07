@@ -56,8 +56,10 @@ RawEthernet::~RawEthernet()
 
 /// @brief Constructing ethernet header on address of first param
 /// @param ether_header address for data formatting
+/// @param dest_addr MAC addr in host order
+/// @param data_len value of field type/len in frame header
 /// @return error status
-int RawEthernet::constructing_ethernet_header(struct ethhdr *const ethernet_header, const uint64_t dest_addr, const uint16_t data_len)
+int RawEthernet::constructing_ethernet_header(struct ethhdr *const ethernet_header, const uint64_t dest_addr, const uint16_t data_len) const
 {
 		/* get MAC address from interface */
 	struct ifreq ifreq_mac;  // here will be MAC 
@@ -99,3 +101,53 @@ int RawEthernet::constructing_ethernet_header(struct ethhdr *const ethernet_head
 	ethernet_header->h_proto = htons(data_len); // amount of data in body
     return 0;
 }
+
+/// @brief Send ethernate frame on intnerface
+/// @param dest_addr destination MAC in host order
+/// @param body_data_ptr pointer to body data 
+/// @param data_len pointer fo body data  
+/// @param data_type value of field type/len in frame header
+/// @return error status
+int RawEthernet::send_ethernet_frame(const uint64_t dest_addr, const uint8_t * const body_data_ptr, const uint16_t data_len , uint16_t data_type = 0) const {
+
+	const size_t sum_of_all_headers = sizeof(struct ethhdr); 
+	const size_t data_size = data_len + sum_of_all_headers;
+
+	uint8_t * send_buff = static_cast<uint8_t *>(malloc(data_size)); // TODO заменить на new
+	memset(send_buff,0,data_size);
+
+	data_type = data_type ? data_type : data_len; // если поле type не определлено, устанавлеваем в него длинну тела кадра.
+
+	constructing_ethernet_header(reinterpret_cast<ethhdr * const>(send_buff),dest_addr,data_type);
+
+	memcpy(send_buff + sum_of_all_headers,body_data_ptr,data_len); // TODO проверить что сложение с void* дает корректный результат
+
+
+#ifdef PRINT_DEBUG_INFO_RAW_ETHERNET
+	for (int i = 0; i < data_size; i++)
+	{
+		switch (i)
+		{
+		case 0:
+			printf("\nEthernet header:\n");
+			break;
+		case sizeof(struct ethhdr) :
+			printf("\nPacket body:\n");
+			break;
+		default:
+			break;
+		}
+		printf("%02X ", send_buff[i]);
+	}
+#endif /* PRINT_DEBUG_INFO_RAW_ETHERNET */
+
+	//write frame to socket
+	if(write(rawsocket, send_buff, data_size) == -1)
+	{
+		perror("Error writing bytes to the socket! \n");
+		exit(-1);
+	}
+	free(send_buff); // TODO заменить на delete
+	return 0;
+}
+

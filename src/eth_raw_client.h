@@ -48,15 +48,13 @@
 #else
 // NOTE send broadcast header
 #define INTERFACE_NAME "eth0"
-#define DESTMAC0 0x00
+#define DESTMAC0 0x12
 #define DESTMAC1 0x00
 #define DESTMAC2 0x00
 
-
-
 #define DESTMAC3 0x00
 #define DESTMAC4 0x00
-#define DESTMAC5 0x12
+#define DESTMAC5 0x00
 
 
 #endif /* SEND_TO_LOOPBACK */
