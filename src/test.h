@@ -7,7 +7,6 @@
 #include <string>
 #include <unistd.h>
 #include <signal.h>
-#include "./Module/MsEthModule.h"
 #include "./Module/RawEthernet.h"
 #include <sys/stat.h>
 #include <fcntl.h>

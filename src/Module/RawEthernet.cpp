@@ -108,7 +108,7 @@ int RawEthernet::constructing_ethernet_header(struct ethhdr *const ethernet_head
 /// @param data_len pointer fo body data  
 /// @param data_type value of field type/len in frame header
 /// @return error status
-int RawEthernet::send_ethernet_frame(const uint64_t dest_addr, const uint8_t * const body_data_ptr, const uint16_t data_len , uint16_t data_type = 0) const {
+int RawEthernet::send_ethernet_frame(const uint64_t dest_addr, const uint8_t * const body_data_ptr, const uint16_t data_len , uint16_t data_type/*  = 0 */) const {
 
 	const size_t sum_of_all_headers = sizeof(struct ethhdr); 
 	const size_t data_size = data_len + sum_of_all_headers;

@@ -11,8 +11,8 @@ int main()
 {
 
 #ifdef ETH_TEST
-    int rawsocket;
-    open_raw_socket_at_interface(INTERFACE_NAME,&rawsocket);
+    // int rawsocket;
+    // open_raw_socket_at_interface(INTERFACE_NAME,&rawsocket);
 
     
     // for (;;)
@@ -21,13 +21,13 @@ int main()
     //     sleep(1);
     // }
 
-    ether_send(&rawsocket);
+    // ether_send(&rawsocket);
 
     // sleep (1);
     // ether_receive(&rawsocket);
-    close_raw_socket_at_interface(&rawsocket);
+    // close_raw_socket_at_interface(&rawsocket);
 
-    RawEthernet ethenet("eth0");
+    RawEthernet ethenet("enp34s0");
     uint8_t buff[256];
     for (size_t i = 0; i < 255; i++)
     {

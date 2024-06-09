@@ -18,7 +18,7 @@ MsEthModule::MsEthModule(modules eth_module, uint8_t eth_priority, uint32_t eth_
         exit(-1);
     }
     open_raw_socket_at_interface(INTERFACE_NAME, rawsocket);
-    received_buffer_position = reinterpret_cast<uint32_t>(rxBufferAddr); 
+    received_buffer_position = reinterpret_cast<uint64_t>(rxBufferAddr); 
     // int open_raw_socket_at_interface(const char *__restrict interface_name, int *rawsocket);
     // TODO open socket here!!!
 
@@ -111,17 +111,17 @@ uint32_t MsEthModule::GetReceivedDataAddress(uint64_t mac_addr_extern, uint32_t 
 {
     const uint32_t service_inf_length = 16; // служебная информация пакета Ethernet (заголовок + контр.сумма)
 
-    uint32_t rxBufferEndAddr = reinterpret_cast<uint32_t>(rxBufferAddr) + rxBufferLength;
+    uint32_t rxBufferEndAddr = reinterpret_cast<uint64_t>(rxBufferAddr) + rxBufferLength;
 
     // если буфер был изменен, то начинать поиск с начала буфера
-    if (current_buffer_position < reinterpret_cast<uint32_t>(rxBufferAddr) 
+    if (current_buffer_position < reinterpret_cast<uint64_t>(rxBufferAddr) 
             || current_buffer_position > rxBufferEndAddr 
-            || received_buffer_position< reinterpret_cast<uint32_t>(rxBufferAddr)
+            || received_buffer_position< reinterpret_cast<uint64_t>(rxBufferAddr)
             || received_buffer_position > rxBufferEndAddr )
     {
-        current_buffer_position = reinterpret_cast<uint32_t>(rxBufferAddr); //итератор выданных из модуля, 
+        current_buffer_position = reinterpret_cast<uint64_t>(rxBufferAddr); //итератор выданных из модуля, 
                                                                             //по запросу, кадров
-        received_buffer_position = reinterpret_cast<uint32_t>(rxBufferAddr); //итератор полученных в модуль кадров
+        received_buffer_position = reinterpret_cast<uint64_t>(rxBufferAddr); //итератор полученных в модуль кадров
         // TODO что делать в случае, когда буфер изменили, а пакет новый не принят, и тогда
         //  в ms_notice.DataAddress будет старое значение, которое еще может быть в пределах нового буфера (если буфер смещен не очень сильно)
     }
@@ -165,7 +165,7 @@ uint32_t MsEthModule::GetReceivedDataAddress(uint64_t mac_addr_extern, uint32_t 
                 return current_buffer_position;
         }
 
-        current_buffer_position = reinterpret_cast<uint32_t>(rxBufferAddr); // переносим указатель на начало буфера
+        current_buffer_position = reinterpret_cast<uint64_t>(rxBufferAddr); // переносим указатель на начало буфера
     }
 
     while (current_buffer_position < received_buffer_position)
