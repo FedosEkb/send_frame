@@ -39,6 +39,8 @@ public:
     ~RawEthernet();
 
     int send_ethernet_frame(const uint64_t dest_addr, const uint8_t * const body_data_ptr, const uint16_t data_len ,  const uint16_t data_type = 0) const; //! выслать данные с интерфейса
+
+    int receive_ethernet_frame(uint8_t * const receive_buff, const size_t buff_len) const; //! Запросить очередной кадр с интерфейса.
     
 };
 
