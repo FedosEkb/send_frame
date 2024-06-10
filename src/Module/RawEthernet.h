@@ -28,10 +28,10 @@ private:
 
     int constructing_ethernet_header(struct ethhdr *const ethernet_header, const uint64_t dest_addr, const uint16_t data_len) const; 
 
-    inline uint64_t htonMAC(uint64_t x) const { return (((uint64_t)htonl(x)) << 16) + htons((x) >> 32); } __attribute__ ((__const__)) //!  flips the bytes end to end. If you apply it twice, it restores the value to its original state.
-    inline uint64_t ntohMAC(uint64_t x) const { return (((uint64_t)htonl(x)) << 16) + htons((x) >> 32); } __attribute__ ((__const__)) //!  So the same function can be used for ntohll
+    inline uint64_t htonMAC(uint64_t x) const __attribute__ ((__const__)) { return (((uint64_t)htonl(x)) << 16) + htons((x) >> 32); } //!  flips the bytes end to end. If you apply it twice, it restores the value to its original state.
+    inline uint64_t ntohMAC(uint64_t x)  const __attribute__ ((__const__)) { return (((uint64_t)htonl(x)) << 16) + htons((x) >> 32); } //!  So the same function can be used for ntohll
 
-    RawEthernet(const RawEthernet &) = 0; // запрещаем конструктор копирования
+    RawEthernet(RawEthernet &) = delete; // запрещаем конструктор копирования
     RawEthernet& operator=(const RawEthernet &) = delete; // запрещаем оператор присваевания.
 
 public:
