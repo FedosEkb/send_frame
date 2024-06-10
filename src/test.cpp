@@ -9,23 +9,7 @@ inline uint64_t ntohMAC(uint64_t x) { return (((uint64_t)htonl(x)) << 16) + hton
 
 int main()
 {
-
 #ifdef ETH_TEST
-    // int rawsocket;
-    // open_raw_socket_at_interface(INTERFACE_NAME,&rawsocket);
-
-    
-    // for (;;)
-    // {
-    //     ether_send(&rawsocket);
-    //     sleep(1);
-    // }
-
-    // ether_send(&rawsocket);
-
-    // sleep (1);
-    // ether_receive(&rawsocket);
-    // close_raw_socket_at_interface(&rawsocket);
 
     RawEthernet ethenet("lo");
     uint8_t buff[0x600];
@@ -33,11 +17,16 @@ int main()
     {
         buff[i] = i;
     }
-    
+
+    std::cout << "\nSend frame:\n";
+
     ethenet.send_ethernet_frame(0x0,buff,255,0xFFF0);
-#endif /* ETH_TEST */
+
+    std::cout << "\nReceive frame:\n";
     size_t taked_len = ethenet.receive_ethernet_frame(buff,0x600);
     print_ethernet_header(reinterpret_cast<ethhdr *>(buff));
+
+#endif /* ETH_TEST */
 
     return 0;
 }

@@ -154,7 +154,7 @@ int RawEthernet::send_ethernet_frame(const uint64_t dest_addr, const uint8_t * c
 /// @brief Resive frame from interface
 /// @param receive_buff buffer for data for imput dtat
 /// @param buff_len data len
-/// @return error status
+/// @return error status or amount of received byte
 int RawEthernet::receive_ethernet_frame(uint8_t * const receive_buff, const size_t buff_len) const {
 	struct sockaddr saddr;
 	int saddr_len = sizeof(saddr);
@@ -166,6 +166,6 @@ int RawEthernet::receive_ethernet_frame(uint8_t * const receive_buff, const size
 		printf("error in reading recvfrom function\n");
 		return -1;
 	}
-
+	return buflen;
 }
 
