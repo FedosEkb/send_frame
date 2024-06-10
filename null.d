@@ -1,1 +1,1 @@
-Debug/src/header_print.o: /dev/null
+Debug/src/test.o: /dev/null
