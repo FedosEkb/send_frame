@@ -27,15 +27,17 @@ int main()
     // ether_receive(&rawsocket);
     // close_raw_socket_at_interface(&rawsocket);
 
-    RawEthernet ethenet("enp34s0");
-    uint8_t buff[256];
+    RawEthernet ethenet("lo");
+    uint8_t buff[0x600];
     for (size_t i = 0; i < 255; i++)
     {
         buff[i] = i;
     }
     
-    ethenet.send_ethernet_frame(0x123456789ABC,buff,255,0xC0DE);
+    ethenet.send_ethernet_frame(0x0,buff,255,0xFFF0);
 #endif /* ETH_TEST */
+    size_t taked_len = ethenet.receive_ethernet_frame(buff,0x600);
+    print_ethernet_header(reinterpret_cast<ethhdr *>(buff));
 
     return 0;
 }
