@@ -9,10 +9,18 @@
 #include <string.h>
 #include <arpa/inet.h>
 
+#ifdef __cplusplus
+extern "C" { 
+#endif /* __cplusplus */
+
 void print_ethernet_header(struct ethhdr *eth);
 
 void print_ip_header(struct iphdr *ip);
 
 void print_udp_header(struct udphdr *udp);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* HEADER_PRINT */

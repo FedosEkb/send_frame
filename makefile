@@ -16,7 +16,7 @@ include ./paths
 #TARGET := Name of current directory:
 TARGET := $(notdir $(CURDIR))# function notdir cut path to current dir 
 
-SRC_DIR := src src/Modules# !NOTE! if you want to add some other dir, put their name here
+SRC_DIR := src src/Module# !NOTE! if you want to add some other dir, put their name here
 BUILD_DIR := Debug
 
 SRC_CPP	:= $(foreach DIR, $(SRC_DIR), $(wildcard $(DIR)/*.cpp))

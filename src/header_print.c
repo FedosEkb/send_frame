@@ -11,7 +11,7 @@ void print_ethernet_header(struct ethhdr *eth)
 		   eth->h_source[1], eth->h_source[2], eth->h_source[3], eth->h_source[4], eth->h_source[5]);
 	printf("\t|-Destination Address : %.2X-%.2X-%.2X-%.2X-%.2X-%.2X\n",
 		   eth->h_dest[0], eth->h_dest[1], eth->h_dest[2], eth->h_dest[3], eth->h_dest[4], eth->h_dest[5]);
-	printf("\t|-Protocol : %d\n", eth->h_proto);
+	printf("\t|-Protocol : %d\n", ntohs(eth->h_proto));
 }
 
 /// @brief 

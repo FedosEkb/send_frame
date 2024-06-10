@@ -108,7 +108,7 @@ int RawEthernet::constructing_ethernet_header(struct ethhdr *const ethernet_head
 /// @param data_len pointer fo body data  
 /// @param data_type value of field type/len in frame header
 /// @return error status
-int RawEthernet::send_ethernet_frame(const uint64_t dest_addr, const uint8_t * const body_data_ptr, const uint16_t data_len , uint16_t data_type = 0) const {
+int RawEthernet::send_ethernet_frame(const uint64_t dest_addr, const uint8_t * const body_data_ptr, const uint16_t data_len , uint16_t data_type/*  = 0 */) const {
 
 	const size_t sum_of_all_headers = sizeof(struct ethhdr); 
 	const size_t data_size = data_len + sum_of_all_headers;
@@ -149,5 +149,23 @@ int RawEthernet::send_ethernet_frame(const uint64_t dest_addr, const uint8_t * c
 	}
 	free(send_buff); // TODO заменить на delete
 	return 0;
+}
+
+/// @brief Resive frame from interface
+/// @param receive_buff buffer for data for imput dtat
+/// @param buff_len data len
+/// @return error status or amount of received byte
+int RawEthernet::receive_ethernet_frame(uint8_t * const receive_buff, const size_t buff_len) const {
+	struct sockaddr saddr;
+	int saddr_len = sizeof(saddr);
+
+	// Receive a network packet and copy in to buffer
+	size_t buflen = recvfrom(rawsocket, receive_buff, buff_len, 0, &saddr, (socklen_t *)&saddr_len);
+	if (buflen < 0)
+	{
+		printf("error in reading recvfrom function\n");
+		return -1;
+	}
+	return buflen;
 }
 
