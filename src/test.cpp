@@ -1,11 +1,10 @@
 /* cSpell:disable */
 #include "test.h"
 
-typedef unsigned int super_uint32_t;
-
 int main()
 {
 #ifdef ETH_TEST
+
 
     RawEthernet ethenet("eth0");
     uint8_t buff[0x600];
