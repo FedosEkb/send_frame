@@ -59,7 +59,7 @@ RawEthernet::~RawEthernet()
 /// @param dest_addr MAC addr in host order
 /// @param data_len value of field type/len in frame header
 /// @return error status
-int RawEthernet::constructing_ethernet_header(struct ethhdr *const ethernet_header, const uint64_t dest_addr, const uint16_t data_len) const
+int RawEthernet::constructing_ethernet_header(struct ethhdr *const ethernet_header, const uint64_t dest_addr, const uint64_t src_addr, const uint16_t data_len) const
 {
 		/* get MAC address from interface */
 	struct ifreq ifreq_mac;  // here will be MAC 
@@ -87,15 +87,17 @@ int RawEthernet::constructing_ethernet_header(struct ethhdr *const ethernet_head
 	memcpy(ethernet_header->h_dest, (void *)(ifreq_mac.ifr_ifru.ifru_hwaddr.sa_data), ETH_ALEN);
 #else
 	uint64_t dest_addr_MAC_net_order = htonMAC(dest_addr);
-	memcpy(ethernet_header->h_dest, &dest_addr_MAC_net_order, ETH_ALEN); // TODO проверить корректность работы!
-	// ethernet_header->h_dest[0] = 12; 
-	// ethernet_header->h_dest[1] = 0;
-	// ethernet_header->h_dest[2] = 0;
-	// ethernet_header->h_dest[3] = 0;
-	// ethernet_header->h_dest[4] = 0;
-	// ethernet_header->h_dest[5] = 0;
+	memcpy(ethernet_header->h_dest, &dest_addr_MAC_net_order, ETH_ALEN);
 #endif /* SEND_TO_LOOPBACK */
-	memcpy(ethernet_header->h_source, (void *)(ifreq_mac.ifr_ifru.ifru_hwaddr.sa_data), ETH_ALEN);
+	if (src_addr == 0xFFFFFFFFFFFFFFFF)
+	{
+		memcpy(ethernet_header->h_source, (void *)(ifreq_mac.ifr_ifru.ifru_hwaddr.sa_data), ETH_ALEN);
+	}
+	else
+	{
+		uint64_t src_addr_MAC_net_order = htonMAC(src_addr);
+		memcpy(ethernet_header->h_source, &src_addr_MAC_net_order, ETH_ALEN);
+	}
 
 	// #define DATA_SIZE (0x600 - 14 - 4 - 100) 
 	ethernet_header->h_proto = htons(data_len); // amount of data in body
@@ -107,9 +109,12 @@ int RawEthernet::constructing_ethernet_header(struct ethhdr *const ethernet_head
 /// @param body_data_ptr pointer to body data 
 /// @param data_len pointer fo body data  
 /// @param data_type value of field type/len in frame header
+/// @param src_addr source MAC in host order
 /// @return error status
-int RawEthernet::send_ethernet_frame(const uint64_t dest_addr, const uint8_t * const body_data_ptr, const uint16_t data_len , uint16_t data_type/*  = 0 */) const {
-
+int RawEthernet::send_ethernet_frame(const uint64_t dest_addr, const uint8_t *const body_data_ptr,
+									 const uint16_t data_len, uint16_t data_type /*  = 0 */,
+									 uint64_t src_addr /* = 0xFFFFFFFFFFFFFFFF */) const
+{
 	const size_t sum_of_all_headers = sizeof(struct ethhdr); 
 	const size_t data_size = data_len + sum_of_all_headers;
 
@@ -118,9 +123,9 @@ int RawEthernet::send_ethernet_frame(const uint64_t dest_addr, const uint8_t * c
 
 	data_type = data_type ? data_type : data_len; // если поле type не определлено, устанавлеваем в него длинну тела кадра.
 
-	constructing_ethernet_header(reinterpret_cast<ethhdr * const>(send_buff),dest_addr,data_type);
+	constructing_ethernet_header(reinterpret_cast<ethhdr * const>(send_buff),dest_addr, src_addr, data_type);
 
-	memcpy(send_buff + sum_of_all_headers,body_data_ptr,data_len); // TODO проверить что сложение с void* дает корректный результат
+	memcpy(send_buff + sum_of_all_headers,body_data_ptr,data_len); 
 
 
 #ifdef PRINT_DEBUG_INFO_RAW_ETHERNET
@@ -149,6 +154,20 @@ int RawEthernet::send_ethernet_frame(const uint64_t dest_addr, const uint8_t * c
 	}
 	free(send_buff); // TODO заменить на delete
 	return 0;
+}
+
+/// @brief Send ethernate frame on intnerface
+/// @param dest_addr destination MAC in host order
+/// @param src_addr source MAC in host order
+/// @param body_data_ptr pointer to body data 
+/// @param data_len pointer fo body data  
+/// @param data_type value of field type/len in frame header
+/// @return error status
+int RawEthernet::send_ethernet_frame_other_MAC(const uint64_t dest_addr, const uint64_t src_addr,
+											   const uint8_t *const body_data_ptr, const uint16_t data_len,
+											   const uint16_t data_type/*  = 0 */) const
+{
+	return send_ethernet_frame(dest_addr, body_data_ptr, data_len, data_type, src_addr);
 }
 
 /// @brief Resive frame from interface
